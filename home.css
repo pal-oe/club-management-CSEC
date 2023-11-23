@@ -1,0 +1,27 @@
+.dark-theme {
+  background-color: #333;
+  color: white;
+}
+
+.dark-theme .card {
+  background-color: #555;
+  color: white;
+}
+/* Add shadows to the sidebar and main content */
+.sidebar {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+main {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Add curved borders to the sidebar */
+.sidebar {
+  border-radius: 10px;
+}
+
+/* Add rounded corners to the buttons */
+.btn {
+  border-radius: 20px;
+}

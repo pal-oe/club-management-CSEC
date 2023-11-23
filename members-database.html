@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Club Membership Database</title>
+  <!-- Bootstrap CSS CDN -->
+  <!-- Bootstrap CSS CDN -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+<!-- jQuery and Bootstrap JS CDN -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <!-- Font Awesome CSS for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+          <!-- Sidebar (Navigation) -->
+          <!-- Include your sidebar here -->
+      
+          <div class="container-fluid">
+            <div class="row">
+                <!-- nav bar -->
+                <nav class="navbar navbar-expand-lg bg-body-tertiary">
+                    <div class="container-fluid">
+                      <a class="navbar-brand" href="#">CSEC</a>
+                      <button
+                        class="navbar-toggler collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#navbarScroll"
+                        aria-controls="navbarScroll"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation"
+                      >
+                        <span class="navbar-toggler-icon"></span>
+                      </button>
+                      <div class="navbar-collapse collapse" id="navbarScroll" style="">
+                        <ul
+                          class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll"
+                          style="--bs-scroll-height: 100px"
+                        >
+                          <li class="nav-item">
+                            <a class="nav-link active" href="/dashboard.html">
+                              <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                          </li>
+                          <li class="nav-item">
+                            <a class="nav-link" href="/members-database.html">
+                              <i class="fas fa-users"></i> Members Database
+                            </a>
+                          </li>
+                          </li>
+                          <li class="nav-item">
+                            <a class="nav-link" href="#">
+                              <i class="fas fa-chart-bar"></i> Reporting Dashboard
+                            </a>
+                          </li>
+                          <li class="nav-item">
+                            <a class="nav-link" href="#">
+                              <i class="fas fa-user"></i> Members Area
+                            </a>
+                          </li>
+                          </li>
+                          <!-- Add more navigation items as needed -->
+                        </ul>
+                      </div>
+                    </div>
+                  </nav>
+            
+                <!-- end of nav bar  -->
+              <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+                <!-- Content goes here -->
+          
+                <div class="container">
+                  <h1 class="text-center mt-3 mb-3">Members Database</h1>
+          
+                  <!-- Add a table structure with the tbody element -->
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Role</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="membersTableBody">
+                      <!-- Table rows will be dynamically added here -->
+                    </tbody>
+                  </table>
+                </div>
+          
+              </main>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      <!-- Add content and functionality for Members Database -->
+      <!-- Add this button in the appropriate place in your HTML -->
+<div class="container d-flex justify-content-end">
+    <button class="btn btn-primary" data-toggle="modal" data-target="#addMemberModal">Add Member</button>
+  </div>
+
+  <!-- Edit Member Modal -->
+<div class="modal fade" id="editMemberModal" tabindex="-1" role="dialog" aria-labelledby="editMemberModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editMemberModalLabel">Edit Member</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- Edit Member Form -->
+          <form id="editMemberForm">
+            <div class="form-group">
+              <label for="editMemberName">Name</label>
+              <input type="text" class="form-control" id="editMemberName" required>
+            </div>
+            <div class="form-group">
+              <label for="editMemberStatus">Status</label>
+              <select class="form-control" id="editMemberStatus" required>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="editMemberRole">Role</label>
+              <input type="text" class="form-control" id="editMemberRole" required>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="submitEditMemberForm()">Save Changes</button>
+          </form>
+          <!-- End Edit Member Form -->
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <!-- Add Member Modal -->
+  <div class="modal fade" id="addMemberModal" tabindex="-1" role="dialog" aria-labelledby="addMemberModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addMemberModalLabel">Add Member</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- Add a form with input fields for member information -->
+          <form id="addMemberForm">
+            <div class="form-group">
+              <label for="memberName">Name</label>
+              <input type="text" class="form-control" id="memberName" required>
+            </div>
+            <div class="form-group">
+              <label for="memberStatus">Status</label>
+              <select class="form-control" id="memberStatus" required>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="memberRole">Role</label>
+              <select class="form-control" id="memberRole" required>
+                <option value="admin">admin</option>
+                <option value="user">user</option>
+              </select>
+            </div>
+            <div class="form-group">
+                <label for="memberPass">Password</label>
+                <input type="text" class="form-control" id="memberPass" required>
+              </div>
+            <button type="button" class="btn btn-primary" onclick="submitAddMemberForm()">Add Member</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+<script src="custom.js"></script>
+</body>
+</html>

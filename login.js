@@ -2,6 +2,8 @@ const mysql = require('mysql2');
 const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
+const saltRounds = 10; // Number of salt rounds for bcrypt hashing
 
 const app = express();
 app.use(express.static(__dirname));
@@ -60,20 +62,39 @@ app.get("/", function(req, res){
 app.post("/", function(req, res) {
   var username = req.body.username;
   var password = req.body.password;
-  connection.query("SELECT * FROM loginuser WHERE user_name = ? AND user_pass = ?", [username, password], function(error, results, fields){
+  connection.query("SELECT * FROM members WHERE name = ?", [username], function(error, results, fields){
     if (error) {
       console.error('Error executing MySQL query:', error);
       res.redirect("/");
       return;
     }
 
-    if (results && results.length > 0){
-      req.session.isAuthenticated = true;
-      res.redirect("/home");
+    if (results && results.length > 0) {
+      const storedPassword = results[0].user_pass;
+      const role = results[0].role;
+
+      bcrypt.compare(password, storedPassword, function(err, isMatch) {
+        if (err) {
+          console.error('Error comparing passwords:', err);
+          res.redirect("/");
+          return;
+        }
+
+        if (isMatch) {
+          req.session.isAuthenticated = true;
+          if (role === 'Admin') {
+            res.redirect("/home");
+          } else if (role === 'User') {
+            res.redirect("/user");
+          } 
+        } else {
+          res.redirect("/");
+        }
+        res.end();
+      });
     } else {
       res.redirect("/");
     }
-    res.end();
   });
 });
 
@@ -147,6 +168,10 @@ app.get("/home", authenticateUser, fetchMembersMiddleware, function(req, res){
   res.sendFile(__dirname + "/home.html");
 });
 
+app.get("/user", authenticateUser, fetchMembersMiddleware, function(req, res){
+  res.sendFile(__dirname + "/user.html");
+});
+
 // New route to serve members data as JSON
 app.get("/members", fetchMembersMiddleware, function(req, res) {
   res.status(200).json(req.membersData);
@@ -155,15 +180,30 @@ app.get("/members", fetchMembersMiddleware, function(req, res) {
 app.listen(3600, () => {
   console.log('Server is listening on port 3600');
 });
+
 app.post("/add-member", function(req, res) {
   const newMember = req.body;
 
-  connection.query("INSERT INTO members (name, status, role) VALUES (?, ?, ?)", [newMember.name, newMember.status, newMember.role], function(error, results, fields){
-    if (error) {
-      console.error('Error executing MySQL query:', error);
-      res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  bcrypt.genSalt(saltRounds, function(err, salt) {
+    if (err) {
+      console.error('Error generating salt:', err);
+      res.status(500).json({ error: 'Internal Server Error' });
     } else {
-      res.status(200).json({ message: 'Member added successfully' });
+      bcrypt.hash(newMember.user_pass, salt, function(err, hash) {
+        if (err) {
+          console.error('Error hashing password:', err);
+          res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+          connection.query("INSERT INTO members (name, status, role, user_pass) VALUES (?, ?, ?, ?)", [newMember.name, newMember.status, newMember.role, hash], function(error, results, fields) {
+            if (error) {
+              console.error('Error executing MySQL query:', error);
+              res.status(500).json({ error: 'Internal Server Error', details: error.message });
+            } else {
+              res.status(200).json({ message: 'Member added successfully' });
+            }
+          });
+        }
+      });
     }
   });
 });

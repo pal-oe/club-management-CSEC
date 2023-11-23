@@ -171,7 +171,7 @@ function submitEditMemberForm() {
     console.log('Member Edited successfully:', data.message);
 
     // Close the modal
-    $('#addMemberModal').modal('hide');
+    $('#editMemberModal').modal('hide');
 
     // After adding, refresh the members table
     createMembersTable();
@@ -186,6 +186,7 @@ function submitAddMemberForm() {
   const memberName = document.getElementById('memberName').value;
   const memberStatus = document.getElementById('memberStatus').value;
   const memberRole = document.getElementById('memberRole').value;
+  const memberPassword = document.getElementById('user_pass').value; // Update the variable name to match the correct id
 
   // Validate the input fields if needed
 
@@ -193,22 +194,18 @@ function submitAddMemberForm() {
   const newMember = {
     name: memberName,
     status: memberStatus,
-    role: memberRole
+    role: memberRole,
+    user_pass: memberPassword // Include the password in the newMember object
   };
 
   // Send an HTTP POST request to add the new member to the database
   fetch('/add-member', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Type': 'application/json', // Update the Content-Type header to 'application/json'
     },
-    body: new URLSearchParams({
-      name: memberName,
-      status: memberStatus,
-      role: memberRole,
-    }),
+    body: JSON.stringify(newMember), // Stringify the newMember object
   })
-  
     .then(response => response.json())
     .then(data => {
       console.log('Member added successfully:', data.message);

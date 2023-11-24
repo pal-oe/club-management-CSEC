@@ -222,6 +222,10 @@ function submitAddMemberForm() {
     });
 }
 
+function logout() {
+  document.getElementById("logoutForm").submit();
+}
+
 // Function to handle the form submission and post an event
 // custom.js
 

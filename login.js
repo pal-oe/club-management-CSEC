@@ -3,9 +3,11 @@ const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
-const saltRounds = 10; // Number of salt rounds for bcrypt hashing
-
+const saltRounds = 10;
 const app = express();
+const multer = require('multer'); // for handling file uploads
+const storage = multer.memoryStorage(); // store uploaded files in memory as buffers
+const upload = multer({ storage: storage });
 app.use(express.static(__dirname));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
@@ -54,6 +56,72 @@ const fetchMembersMiddleware = (req, res, next) => {
     }
   });
 };
+
+
+// Route to handle the form submission and insert data into the database
+app.post('/postEvent', upload.single('eventImage'), (req, res) => {
+  // Retrieve form values
+  console.log("Received form data:", req.body);
+  console.log("Received file:", req.file);
+  const eventTitle = req.body.eventTitle;
+  const eventDescription = req.body.eventDescription;
+  const eventDate = req.body.eventDate;
+  const eventTime = req.body.eventTime;
+  const eventLocation = req.body.eventLocation;
+
+  // Validate form fields
+  if (!eventTitle || !eventDescription || !eventDate || !eventTime || !eventLocation || !req.file) {
+      res.status(400).send("Please fill in all fields");
+      return;
+  }
+
+  // Read the image file
+  const imageBuffer = req.file.buffer;
+
+  // Insert data into the database
+  const sql = "INSERT INTO events (event_title, description, event_date, event_time, location, image_data) VALUES (?, ?, ?, ?, ?, ?)";
+  connection.query(sql, [eventTitle, eventDescription, eventDate, eventTime, eventLocation, imageBuffer.toString('base64')], (error, results) => {
+      if (error) {
+          console.error(error);
+          res.status(500).send("Internal Server Error");
+          return;
+      }
+
+      res.status(200).send("Event successfully posted");
+  });
+});
+
+app.get('/getEvents', (req, res) => {
+  const sql = "SELECT id, event_title, description, event_date, event_time, location, image_data FROM events";
+  connection.query(sql, (error, results) => {
+      if (error) {
+          console.error("Error fetching events:", error);
+          res.status(500).send("Internal Server Error");
+          return;
+      }
+
+      res.json(results);
+  });
+});
+
+
+
+
+// Route to delete an event by ID
+app.delete('/deleteEvent/:eventId', (req, res) => {
+  const eventId = req.params.eventId;
+  const sql = "DELETE FROM events WHERE id = ?";
+  connection.query(sql, [eventId], (error, results) => {
+      if (error) {
+          console.error("Error deleting event:", error);
+          res.status(500).send("Internal Server Error");
+          return;
+      }
+
+      res.status(200).send("Event successfully deleted");
+  });
+});
+
 
 app.get("/", function(req, res){
   res.sendFile(__dirname + "/index.html");

@@ -222,3 +222,153 @@ function submitAddMemberForm() {
       console.error('Error adding member:', error);
     });
 }
+
+// Function to handle the form submission and post an event
+// custom.js
+
+// Function to handle the form submission and post an event
+async function postEvent() {
+  console.log("postEvent function is running");
+
+  // Retrieve form values
+  var eventTitle = document.getElementById("eventTitle").value;
+  var eventDescription = document.getElementById("eventDescription").value;
+  var eventDate = document.getElementById("eventDate").value;
+  var eventTime = document.getElementById("eventTime").value;
+  var eventLocation = document.getElementById("eventLocation").value;
+  var eventImage = document.getElementById("eventImage").files[0]; // Get the selected image file
+
+  // Validate form fields
+  if (!eventTitle || !eventDescription || !eventDate || !eventTime || !eventLocation || !eventImage) {
+      alert("Please fill in all fields");
+      return;
+  }
+
+  // Create a new FormData object to handle file upload
+  var formData = new FormData();
+  formData.append("eventTitle", eventTitle);
+  formData.append("eventDescription", eventDescription);
+  formData.append("eventDate", eventDate);
+  formData.append("eventTime", eventTime);
+  formData.append("eventLocation", eventLocation);
+  formData.append("eventImage", eventImage);
+
+  try {
+      // Use the fetch API to make the POST request
+      const response = await fetch("/postEvent", {
+          method: "POST",
+          body: formData,
+      });
+
+      // Check the response status
+      if (response.ok) {
+          console.log("Event successfully posted");
+      } else {
+          console.error("Failed to post event:", response.status, response.statusText);
+      }
+  } catch (error) {
+      console.error("Error during fetch:", error);
+  }
+
+  // Clear the form fields
+  $("#eventModal").modal("hide");
+  console.log("Here we are at hide");
+
+  // You can add additional code to update the UI or load the posted event data as needed
+}
+// Function to fetch and display posts
+async function displayPosts() {
+  // Make a GET request to fetch the data
+  try {
+      const response = await fetch("/getEvents"); // Update the endpoint to match your server route
+      if (!response.ok) {
+          throw new Error(`Failed to fetch events: ${response.status} ${response.statusText}`);
+      }
+
+      const events = await response.json();
+
+      // Clear the existing posts
+      document.getElementById("postContainer").innerHTML = "";
+
+      // Display each event as a post
+      events.forEach(event => {
+          createPost(event);
+      });
+  } catch (error) {
+      console.error("Error fetching events:", error);
+  }
+}
+
+// Function to create a post for a single event
+// Function to create a post for a single event
+function createPost(event) {
+  // Create a card element
+  var card = document.createElement("div");
+  card.className = "card mb-3";
+
+  // Create an image element
+  var img = document.createElement("img");
+  img.className = "card-img-top";
+  // Set the image source based on your data (replace 'image_data' with the actual property name)
+  img.src = `data:image/png;base64,${event.image_data}`;
+  img.alt = "Event Image";
+
+  // Create a card body
+  var cardBody = document.createElement("div");
+  cardBody.className = "card-body";
+
+  // Populate the card body with event details
+  var title = document.createElement("h5");
+  title.className = "card-title";
+  title.textContent = event.event_title;
+
+  var description = document.createElement("p");
+  description.className = "card-text";
+  description.textContent = event.description;
+
+  var details = document.createElement("p");
+  details.className = "card-text";
+  details.innerHTML = `<strong>Date:</strong> ${event.event_date}<br><strong>Time:</strong> ${event.event_time}<br><strong>Location:</strong> ${event.location}`;
+
+  // Create a delete button
+  var deleteButton = document.createElement("button");
+  deleteButton.className = "btn btn-danger";
+  deleteButton.textContent = "Delete";
+  // Attach a click event listener to the delete button
+  deleteButton.addEventListener("click", () => deleteEvent(event.id));
+
+  // Append elements to the card body
+  cardBody.appendChild(title);
+  cardBody.appendChild(description);
+  cardBody.appendChild(details);
+  cardBody.appendChild(deleteButton);
+
+  // Append elements to the card
+  card.appendChild(img);
+  card.appendChild(cardBody);
+
+  // Append the card to the post container
+  document.getElementById("postContainer").appendChild(card);
+}
+
+
+// Function to delete an event
+async function deleteEvent(eventId) {
+  try {
+      const response = await fetch(`/deleteEvent/${eventId}`, {
+          method: "DELETE",
+      });
+
+      if (!response.ok) {
+          throw new Error(`Failed to delete event: ${response.status} ${response.statusText}`);
+      }
+
+      // Refresh the displayed posts after deletion
+      displayPosts();
+  } catch (error) {
+      console.error("Error deleting event:", error);
+  }
+}
+
+// Call the displayPosts function to initially load and display events
+displayPosts();

@@ -40,7 +40,7 @@
           >
             <span class="navbar-toggler-icon"></span>
           </button>
-          <div class="navbar-collapse collapse" id="navbarScroll" style="">
+          <div class="navbar-collapse collapse" id="navbarScroll">
             <ul
               class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll"
               style="--bs-scroll-height: 100px"
@@ -77,93 +77,75 @@
           <button class="btn btn-sm btn-dark" id="darkThemeBtn">Dark Theme</button>
         </div>
       </div>
-
+      <div id="postContainer" class="mt-3"></div>
       <!-- Members Database Section -->
       <div class="card">
         <div class="card-header">
           <h2>Upcoming Events</h2>
         </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="container mt-5">
-              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#textFieldModal">
-                Open Modal
-              </button>
-            
-              <!-- Text Field Modal -->
-              <div class="modal fade" id="textFieldModal" tabindex="-1" role="dialog" aria-labelledby="textFieldModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
+        <div class="container mt-5">
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#eventModal">
+              Open Modal
+          </button>
+  
+          <!-- Event Modal -->
+          <div class="modal fade" id="eventModal" tabindex="-1" role="dialog" aria-labelledby="eventModalLabel"
+              aria-hidden="true">
+              <div class="modal-dialog" role="document">
                   <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title" id="textFieldModalLabel">Text Field Modal</h5>
-                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                      </button>
-                    </div>
-                    <div class="modal-body">
-                      <form>
-                        <div class="form-group">
-                          <label for="postText">Enter Text</label>
-                          <input type="text" class="form-control" id="postText" placeholder="Type your text here">
-                        </div>
-                        <button type="button" class="btn btn-primary" onclick="postText()">Post</button>
-                      </form>
-                    </div>
+                      <div class="modal-header">
+                          <h5 class="modal-title" id="eventModalLabel">Event Modal</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                          </button>
+                      </div>
+                      <div class="modal-body">
+                          <form id="eventForm" enctype="multipart/form-data">
+                              <div class="form-group">
+                                  <label for="eventTitle">Event Title</label>
+                                  <input type="text" class="form-control" id="eventTitle" placeholder="Enter event title"
+                                      required>
+                              </div>
+                              <div class="form-group">
+                                  <label for="eventDescription">Event Description</label>
+                                  <textarea class="form-control" id="eventDescription"
+                                      placeholder="Enter event description" required></textarea>
+                              </div>
+                              <div class="form-group">
+                                  <label for="eventDate">Event Date</label>
+                                  <input type="date" class="form-control" id="eventDate" required>
+                              </div>
+                              <div class="form-group">
+                                  <label for="eventTime">Event Time</label>
+                                  <input type="time" class="form-control" id="eventTime" required>
+                              </div>
+                              <div class="form-group">
+                                  <label for="eventLocation">Event Location</label>
+                                  <input type="text" class="form-control" id="eventLocation"
+                                      placeholder="Enter event location" required>
+                              </div>
+                              <div class="form-group">
+                                <label for="eventImage">Event Image</label>
+                                <input type="file" class="form-control-file" id="eventImage" name="eventImage" accept="image/*">
+                                <small id="imageHelp" class="form-text text-muted">Choose an image for your event.</small>
+                            </div>
+                              <button type="button" class="btn btn-primary" onclick="postEvent()">Post Event</button>
+                          </form>
+                      </div>
                   </div>
-                </div>
               </div>
-            
-              <!-- Container for displaying cards -->
-              <div id="cardContainer" class="mt-3"></div>
-            <div class="card-body">
-              <button href="#" class="btn btn-primary">ADD POST</button>
-            </div>
           </div>
+  
+          <!-- Container for displaying events -->
+          <div id="eventContainer" class="mt-3"></div>
+      </div>
         </div>
-      </div>
-      </div>
-      
-      <!-- Event Feed Section (Leave space for event feed) -->
-      <div class="row mt-4">
-      </div>
-    </main>
+  </main>
 </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 <script src="custom.js"></script>
-<script>
-  function postText() {
-    const enteredText = document.getElementById('postText').value;
-
-    // Create a new card
-    const cardContainer = document.getElementById('cardContainer');
-    const card = document.createElement('div');
-    card.className = 'card mt-3';
-
-    card.innerHTML = `
-      <div class="card-body">
-        <p class="card-text">${enteredText}</p>
-        <button class="btn btn-danger" onclick="deleteCard(this)">Delete</button>
-      </div>
-    `;
-
-    // Append the new card to the container
-    cardContainer.appendChild(card);
-
-    // Optionally, you can clear the text field
-    document.getElementById('postText').value = '';
-
-    // Optionally, you can close the modal
-    $('#textFieldModal').modal('hide');
-  }
-
-  function deleteCard(button) {
-    // Delete the parent card when the delete button is clicked
-    const card = button.closest('.card');
-    card.remove();
-  }
-</script>
 </body>
 </html>

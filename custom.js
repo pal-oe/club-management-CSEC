@@ -181,7 +181,6 @@ function submitEditMemberForm() {
   });
 }
 
-// Add this function to handle the submission of the Add Member form
 function submitAddMemberForm() {
   const memberName = document.getElementById('memberName').value;
   const memberStatus = document.getElementById('memberStatus').value;

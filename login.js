@@ -2,13 +2,16 @@ const mysql = require('mysql2');
 const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
+const path = require("path");
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const app = express();
 const multer = require('multer'); // for handling file uploads
 const storage = multer.memoryStorage(); // store uploaded files in memory as buffers
 const upload = multer({ storage: storage });
-app.use(express.static(__dirname));
+
+const customFolderPath = path.join(__dirname, "static");
+app.use(express.static(customFolderPath));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(session({
@@ -32,27 +35,17 @@ connection.connect(function (error) {
   }
 });
 
-app.post('/logout', (req, res) => {
-  // Assuming you have a session variable named 'isAuthenticated'
-  req.session.isAuthenticated = false;
-  res.redirect('/index.html'); 
-});
 // Middleware to check if the user is authenticated
 const authenticateUser = (req, res, next) => {
   // Check if the user is authenticated
   if (req.session.isAuthenticated) {
-      return next();
+    console.log(req.session.isAuthenticatedreq);
+    return next();
   }
 
   // User is not authenticated, redirect to the login page
-  res.redirect("/index.html");
+  res.redirect("/");
 };
-
-
-
-app.get("/", function(req, res){
-  res.sendFile(__dirname + "/index.html");
-});
 
 // Middleware to fetch members from the database
 const fetchMembersMiddleware = (req, res, next) => {
@@ -67,8 +60,13 @@ const fetchMembersMiddleware = (req, res, next) => {
     }
   });
 };
-
-
+app.post('/openMember', (req, res) =>{
+  console.log("we are working");
+  res.redirect('/members-database.html')
+})
+app.get("/members-database.html", authenticateUser, fetchMembersMiddleware, function(req, res){
+  res.sendFile(__dirname + "/members-database.html");
+});
 // Route to handle the form submission and insert data into the database
 app.post('/postEvent', upload.single('eventImage'), (req, res) => {
   // Retrieve form values
@@ -102,32 +100,24 @@ app.post('/postEvent', upload.single('eventImage'), (req, res) => {
   });
 });
 
-app.get('/getEvents', (req, res) => {
-  const sql = "SELECT id, event_title, description, event_date, event_time, location, image_data FROM events";
-  connection.query(sql, (error, results) => {
-      if (error) {
-          console.error("Error fetching events:", error);
-          res.status(500).send("Internal Server Error");
-          return;
-      }
-
-      res.json(results);
-  });
+app.get("/home", authenticateUser, fetchMembersMiddleware, function(req, res){
+  res.sendFile(__dirname + "/home.html");
 });
 
+app.get("/user", authenticateUser, fetchMembersMiddleware, function(req, res){
+  res.sendFile(__dirname + "/user.html");
+});
 
-app.delete('/deleteEvent/:eventId', (req, res) => {
-  const eventId = req.params.eventId;
-  const sql = "DELETE FROM events WHERE id = ?";
-  connection.query(sql, [eventId], (error, results) => {
-      if (error) {
-          console.error("Error deleting event:", error);
-          res.status(500).send("Internal Server Error");
-          return;
-      }
+app.post('/logout', authenticateUser, (req, res) => {
+  // Assuming you have a session variable named 'authenticated'
+  req.session.authenticated = false;
+  console.log("isfalse");
+  // You can perform additional cleanup or redirection here if needed
+  res.redirect('/');
+});
 
-      res.status(200).send("Event successfully deleted");
-  });
+app.get("/", function(req, res){
+  res.sendFile(__dirname + "/index.html");
 });
 
 app.post("/", function(req, res) {
@@ -169,6 +159,35 @@ app.post("/", function(req, res) {
   });
 });
 
+
+app.get('/getEvents', (req, res) => {
+  const sql = "SELECT id, event_title, description, event_date, event_time, location, image_data FROM events";
+  connection.query(sql, (error, results) => {
+      if (error) {
+          console.error("Error fetching events:", error);
+          res.status(500).send("Internal Server Error");
+          return;
+      }
+
+      res.json(results);
+  });
+});
+
+// Route to delete an event by ID
+app.delete('/deleteEvent/:eventId', (req, res) => {
+  const eventId = req.params.eventId;
+  const sql = "DELETE FROM events WHERE id = ?";
+  connection.query(sql, [eventId], (error, results) => {
+      if (error) {
+          console.error("Error deleting event:", error);
+          res.status(500).send("Internal Server Error");
+          return;
+      }
+
+      res.status(200).send("Event successfully deleted");
+  });
+});
+
 // New route to fetch member data for editing
 app.get("/members/:id/edit", function(req, res) {
   const memberId = req.params.id;
@@ -199,7 +218,6 @@ app.post('/members/:id/edit', (req, res) => {
   });
 });
 
-
 // New route to handle member deletion
 app.delete("/members/:id", function(req, res) {
   const memberId = req.params.id;
@@ -214,7 +232,6 @@ app.delete("/members/:id", function(req, res) {
     }
   });
 });
-
 
 app.post('/edit/:id', (req, res) => {
   const memberId = req.params.id;
@@ -234,16 +251,7 @@ app.post('/edit/:id', (req, res) => {
     }
   );
 });
-// Use the middleware for the "/home" route
-app.get("/home", authenticateUser, fetchMembersMiddleware, function(req, res){
-  res.sendFile(__dirname + "/home.html");
-});
 
-app.get("/user", authenticateUser, fetchMembersMiddleware, function(req, res){
-  res.sendFile(__dirname + "/user.html");
-});
-
-// New route to serve members data as JSON
 app.get("/members", fetchMembersMiddleware, function(req, res) {
   res.status(200).json(req.membersData);
 });

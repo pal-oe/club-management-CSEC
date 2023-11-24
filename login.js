@@ -32,16 +32,27 @@ connection.connect(function (error) {
   }
 });
 
+app.post('/logout', (req, res) => {
+  // Assuming you have a session variable named 'isAuthenticated'
+  req.session.isAuthenticated = false;
+  res.redirect('/index.html'); 
+});
 // Middleware to check if the user is authenticated
 const authenticateUser = (req, res, next) => {
   // Check if the user is authenticated
   if (req.session.isAuthenticated) {
-    return next();
+      return next();
   }
 
   // User is not authenticated, redirect to the login page
-  res.redirect("/");
+  res.redirect("/index.html");
 };
+
+
+
+app.get("/", function(req, res){
+  res.sendFile(__dirname + "/index.html");
+});
 
 // Middleware to fetch members from the database
 const fetchMembersMiddleware = (req, res, next) => {
@@ -105,9 +116,6 @@ app.get('/getEvents', (req, res) => {
 });
 
 
-
-
-// Route to delete an event by ID
 app.delete('/deleteEvent/:eventId', (req, res) => {
   const eventId = req.params.eventId;
   const sql = "DELETE FROM events WHERE id = ?";
@@ -120,11 +128,6 @@ app.delete('/deleteEvent/:eventId', (req, res) => {
 
       res.status(200).send("Event successfully deleted");
   });
-});
-
-
-app.get("/", function(req, res){
-  res.sendFile(__dirname + "/index.html");
 });
 
 app.post("/", function(req, res) {

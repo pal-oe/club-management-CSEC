@@ -57,11 +57,14 @@
               </li>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/index.html" onclick="logout()">
-                  <i class="fas fa-sign-out-alt"></i> Logout
+                <a class="nav-link" href="#" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
-              </li>
-              <!-- Add more navigation items as needed -->
+            </li>
+            
+            <form id="logoutForm" action="/logout" method="POST" style="display: none;">
+                <input type="hidden" name="logout" value="true">
+            </form>
             </ul>
           </div>
         </div>

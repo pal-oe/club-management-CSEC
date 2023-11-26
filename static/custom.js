@@ -113,6 +113,7 @@ editButton.onclick = function () {
 
 // Append the edit button to the action cell
 let currentMemberId;
+
 // Function to handle member editing
 function handleEdit(memberId) {
   // Fetch member data from the server based on the memberId
@@ -222,27 +223,18 @@ function submitAddMemberForm() {
     });
 }
 
+function submitForms() {
+  document.getElementById('openMemberForm').submit();
+  console.log("kentu alem");
+}
+
+function submitViewPro(){
+  document.getElementById('openProForm').submit();
+}
+
 function logout() {
-  // Use fetch to make a POST request to the /logout endpoint
-  fetch("/logout", {
-      method: "POST",
-      headers: {
-          "Content-Type": "application/json", // Specify content type as JSON
-      },
-      body: JSON.stringify({ logout: true }), // Convert data to JSON format
-  })
-  .then(response => {
-      if (response.ok) {
-          console.log("Logout successful");
-          // Optional: Redirect to the login page or update UI as needed
-          window.location.href = "/"; // Redirect to the login page
-      } else {
-          console.error("Logout failed");
-      }
-  })
-  .catch(error => {
-      console.error("Error during logout fetch:", error);
-  });
+  document.getElementById('openLogout').submit();
+  console.log("logging out...");
 }
 
 // Function to handle the form submission and post an event
@@ -256,6 +248,7 @@ async function postEvent() {
   var eventTime = document.getElementById("eventTime").value;
   var eventLocation = document.getElementById("eventLocation").value;
   var eventImage = document.getElementById("eventImage").files[0]; // Get the selected image file
+  const modal = document.getElementById('eventModal');
 
   // Validate form fields
   if (!eventTitle || !eventDescription || !eventDate || !eventTime || !eventLocation || !eventImage) {
@@ -288,12 +281,9 @@ async function postEvent() {
   } catch (error) {
       console.error("Error during fetch:", error);
   }
-
+  modal.style.visibility = 'none';
   // Clear the form fields
   $("#eventModal").modal("hide");
-  console.log("Here we are at hide");
-
-  // You can add additional code to update the UI or load the posted event data as needed
 }
 // Function to fetch and display posts
 async function displayPosts() {
@@ -318,8 +308,7 @@ async function displayPosts() {
   }
 }
 
-// Function to create a post for a single event
-// Function to create a post for a single event
+
 function createPost(event) {
   // Create a card element
   var card = document.createElement("div");
@@ -351,7 +340,8 @@ function createPost(event) {
 
   // Create a delete button
   var deleteButton = document.createElement("button");
-  deleteButton.className = "btn btn-danger";
+  deleteButton.className = "btn btn-danger deleteBtn tree";
+  deleteButton.id = "deleteBtn"
   deleteButton.textContent = "Delete";
   // Attach a click event listener to the delete button
   deleteButton.addEventListener("click", () => deleteEvent(event.id));
@@ -361,17 +351,18 @@ function createPost(event) {
   cardBody.appendChild(description);
   cardBody.appendChild(details);
   cardBody.appendChild(deleteButton);
-
   // Append elements to the card
   card.appendChild(img);
   card.appendChild(cardBody);
 
   // Append the card to the post container
   document.getElementById("postContainer").appendChild(card);
+
+  displayPosts();
+  $('#eventModal').modal('hide');
 }
 
 
-// Function to delete an event
 async function deleteEvent(eventId) {
   try {
       const response = await fetch(`/deleteEvent/${eventId}`, {
@@ -388,6 +379,6 @@ async function deleteEvent(eventId) {
       console.error("Error deleting event:", error);
   }
 }
-
-// Call the displayPosts function to initially load and display events
 displayPosts();
+
+//for admin password changing

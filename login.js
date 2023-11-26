@@ -9,7 +9,7 @@ const app = express();
 const multer = require('multer'); // for handling file uploads
 const storage = multer.memoryStorage(); // store uploaded files in memory as buffers
 const upload = multer({ storage: storage });
-
+let globalUserId;
 const customFolderPath = path.join(__dirname, "static");
 app.use(express.static(customFolderPath));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -60,15 +60,10 @@ const fetchMembersMiddleware = (req, res, next) => {
     }
   });
 };
-app.post('/openMember', (req, res) =>{
-  console.log("we are working");
-  res.redirect('/members-database.html')
-})
-app.get("/members-database.html", authenticateUser, fetchMembersMiddleware, function(req, res){
-  res.sendFile(__dirname + "/members-database.html");
-});
+
+
 // Route to handle the form submission and insert data into the database
-app.post('/postEvent', upload.single('eventImage'), (req, res) => {
+app.post('/postEvent', authenticateUser, upload.single('eventImage'), (req, res) => {
   // Retrieve form values
   console.log("Received form data:", req.body);
   console.log("Received file:", req.file);
@@ -110,11 +105,46 @@ app.get("/user", authenticateUser, fetchMembersMiddleware, function(req, res){
 
 app.post('/logout', authenticateUser, (req, res) => {
   // Assuming you have a session variable named 'authenticated'
+    // Clear the session and redirect to the login pag
   req.session.authenticated = false;
-  console.log("isfalse");
+  req.session.userId = null;
+  req.session.destroy();
+  console.log("authenticated = isfalse");
   // You can perform additional cleanup or redirection here if needed
-  res.redirect('/');
+  res.redirect('/login'); // Redirect to login page after logout
+  console.log(res.redirect);
 });
+
+app.get("/login", fetchMembersMiddleware, function(req, res){
+  req.session.authenticated = false;
+  res.sendFile(__dirname + "/index.html");
+});
+
+app.post("/openPro", (req, res)=>{
+  console.log("opened members");
+  res.redirect("/openP");
+})
+
+app.get("/openp", fetchMembersMiddleware, function(req, res){
+  res.sendFile(__dirname + "/profile.html");
+});
+
+app.post("/openMember", authenticateUser, (req, res)=>{
+  console.log("opened members");
+  res.redirect("/openM");
+})
+
+app.get("/openM", authenticateUser, fetchMembersMiddleware, function(req, res){
+  res.sendFile(__dirname + "/members-database.html");
+});
+
+app.post("/openDash", authenticateUser, (req, res)=>{
+  res.redirect("/openDashes");
+})
+
+app.get("/openDashes", authenticateUser, (req, res)=>{
+  res.sendFile(__dirname + "/dashboard.html");
+})
 
 app.get("/", function(req, res){
   res.sendFile(__dirname + "/index.html");
@@ -143,10 +173,14 @@ app.post("/", function(req, res) {
 
         if (isMatch) {
           req.session.isAuthenticated = true;
+          globalUserId = results[0].id;
+          console.log("userid = "+globalUserId)
           if (role === 'Admin') {
             res.redirect("/home");
+            console.log("Admin new");
           } else if (role === 'User') {
             res.redirect("/user");
+            console.log("user new");
           } 
         } else {
           res.redirect("/");
@@ -160,7 +194,7 @@ app.post("/", function(req, res) {
 });
 
 
-app.get('/getEvents', (req, res) => {
+app.get('/getEvents', authenticateUser,(req, res) => {
   const sql = "SELECT id, event_title, description, event_date, event_time, location, image_data FROM events";
   connection.query(sql, (error, results) => {
       if (error) {
@@ -174,7 +208,7 @@ app.get('/getEvents', (req, res) => {
 });
 
 // Route to delete an event by ID
-app.delete('/deleteEvent/:eventId', (req, res) => {
+app.delete('/deleteEvent/:eventId', authenticateUser,(req, res) => {
   const eventId = req.params.eventId;
   const sql = "DELETE FROM events WHERE id = ?";
   connection.query(sql, [eventId], (error, results) => {
@@ -209,7 +243,7 @@ app.get("/members/:id/edit", function(req, res) {
   });
 });
 
-app.post('/members/:id/edit', (req, res) => {
+app.post('/members/:id/edit', authenticateUser,(req, res) => {
   const memberId = req.params.id;
   const { name, status, role } = req.body;
   connection.query('UPDATE your_table_name SET name=?, status=?, role=? WHERE id=?', [name, status, role, memberId], (error, results) => {
@@ -233,7 +267,7 @@ app.delete("/members/:id", function(req, res) {
   });
 });
 
-app.post('/edit/:id', (req, res) => {
+app.post('/edit/:id', authenticateUser, (req, res) => {
   const memberId = req.params.id;
   const { name, status, role } = req.body;
 
@@ -252,7 +286,7 @@ app.post('/edit/:id', (req, res) => {
   );
 });
 
-app.get("/members", fetchMembersMiddleware, function(req, res) {
+app.get("/members", authenticateUser, fetchMembersMiddleware, function(req, res) {
   res.status(200).json(req.membersData);
 });
 
@@ -260,7 +294,7 @@ app.listen(3600, () => {
   console.log('Server is listening on port 3600');
 });
 
-app.post("/add-member", function(req, res) {
+app.post("/add-member", authenticateUser, function(req, res) {
   const newMember = req.body;
 
   bcrypt.genSalt(saltRounds, function(err, salt) {
@@ -286,3 +320,51 @@ app.post("/add-member", function(req, res) {
     }
   });
 });
+app.get('/getUserData/:userId', authenticateUser, (req, res) => {
+  console.log("getting id");
+  const userId = globalUserId;
+  console.log(userId);
+  connection.query('SELECT * FROM members WHERE id = ?', [userId], (error, results) => {
+    if (error) {
+      console.error('Error fetching user data:', error.message);
+      res.status(500).send('Error fetching user data');
+    } else {
+      const userData = results[0];
+      res.json(userData);
+    }
+  });
+});
+app.post('/changePassword/:userId', authenticateUser, (req, res) => {
+  const userId = req.params.userId;
+
+  if (!userId) {
+    return res.status(401).send('Unauthorized'); // Handle unauthorized access
+  }
+
+  const { newPassword } = req.body;
+
+  if (!newPassword || newPassword.trim() === '') {
+    return res.status(400).send('New password cannot be empty'); // Handle empty password
+  }
+
+  bcrypt.hash(newPassword, saltRounds, (hashError, hashedPassword) => {
+    if (hashError) {
+      console.error('Error hashing password:', hashError.message);
+      res.status(500).send('Error changing password');
+    } else {
+      connection.query('UPDATE members SET user_pass = ? WHERE id = ?', [hashedPassword, userId], (updateError, results) => {
+        if (updateError) {
+          console.error('Error updating password:', updateError.message);
+          res.status(500).send('Error changing password');
+        } else {
+          if (results.affectedRows > 0) {
+            res.send('Password changed successfully');
+          } else {
+            res.status(404).send('User not found'); // Handle user not found
+          }
+        }
+      });
+    }
+  });
+});
+

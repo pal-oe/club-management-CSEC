@@ -2,6 +2,17 @@
   background-color: #333;
   color: white;
 }
+@media (max-width: 480px) {
+  .card{
+    width: 100%;
+  }
+}
+.topG{
+  position: relative;
+  width: 50%;
+  left: 24%;
+  margin-top: 10%;
+}
 
 .dark-theme .card {
   background-color: #555;

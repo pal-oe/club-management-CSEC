@@ -1,0 +1,119 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><i class="fa-regular fa-user fa-lg" style="color: #212121;"></i>User Profile Page</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+
+  <div class="container mt-5">
+    <div class="card mx-auto" style="width: 18rem;">
+      <div class="card-body">
+        <h5 class="card-title"><i class="fa-regular fa-user fa-lg" style="color: #212121;"></i>User Profile</h5>
+        <p class="card-text" id="userId"></p>
+        <p class="card-text" id="userName"></p>
+        <p class="card-text" id="userRole"></p>
+        <p class="card-text" id="userStatus"></p>
+        <button class="btn btn-primary" data-toggle="modal" data-target="#changePasswordModal">Change Password</button>
+      </div>
+    </div>
+  </div>
+<div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="changePasswordForm">
+            <div class="form-group">
+              <label for="newPassword">New Password</label>
+              <input type="password" class="form-control" id="newPassword" required>
+            </div>
+            <div class="form-group">
+              <label for="confirmPassword">Confirm Password</label>
+              <input type="password" class="form-control" id="confirmPassword" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+  <!-- Bootstrap JS and jQuery (make sure to include them before your own script) -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <!-- Your JavaScript code will go here -->
+  <script>
+    // script.js
+    document.addEventListener("DOMContentLoaded", function () {
+  // Get user ID from somewhere (you might have it in a session or another way)
+  // Replace with your actual logic to get the user ID
+
+  // Fetch user data
+  fetch(`/getUserData/${userId}`)
+    .then(response => response.json())
+    .then(userData => {
+      document.getElementById("userId").innerText = `User ID: ${userData.id}`;
+      document.getElementById("userName").innerText = `User Name: ${userData.name}`;
+      document.getElementById("userRole").innerText = `User Role: ${userData.role}`;
+      document.getElementById("userStatus").innerText = `User Status: ${userData.status}`;
+    })
+    .catch(error => console.error('Error fetching user data:', error));
+
+  // Change Password Form Submission
+  const changePasswordForm = document.getElementById("changePasswordForm");
+
+  changePasswordForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    // Fetch user data before changing the password
+    fetch(`/getUserData/${userId}`)
+      .then(response => response.json())
+      .then(userData => {
+        const newPassword = document.getElementById("newPassword").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+
+        if (newPassword === confirmPassword) {
+          // Assuming you have a function to update the password in the database
+          // This is where you would use bcrypt to hash the new password before saving it
+          fetch(`/changePassword/${userData.id}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ newPassword }),
+          })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Error changing password');
+              }
+              console.log('Password changed successfully');
+              // Close the modal after password change
+              $("#changePasswordModal").modal("hide");
+            })
+            .catch(error => console.error('Error changing password:', error));
+        } else {
+          alert("Passwords do not match. Please try again.");
+        }
+      })
+      .catch(error => console.error('Error fetching user data:', error));
+  });
+});
+
+
+
+  </script>
+</body>
+</html>

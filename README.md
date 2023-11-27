@@ -1,33 +1,46 @@
-# club-management-CSEC
-This is my entrance project for the club management site for CSEC club
-This is a clun membership management web app developped by Fenan Yosef single handedly.
-This project is made by using html/css/bootsrap/Javascript for front end, Javascript/NodeJs for Backend and MySQL for Database
-Things I want to mention are that, there aren't free sites to host MySQL for free so I will let the person Who wants to test to download the Zip file
-After downloading it to you file, create a new database called in your local database(Mysql), "CREATE DATABASE newnode"
-After that go to the data directory and run the two scripts I have included in There, That will create the needed Initial table for the database
 
-after that start the backend and run localhost://3600 in your browser
-that will bring you the login page
-For admin: username - Admin
-           password - 1234
-For User: username - User
-          password - 1234
-The app includes:
-● Members Database: Add, edit, remove, and list functionalities.
-● Event Management: Tools to manage club events. such ass add events and delete 
-  events on the admin web, and view in user page
-● Reporting Dashboard: Generate reports on membership statistics. I included weekly 
-  statistics in the dashboard which will update on a weekly basis by recording activities
-● User Authentication: Secure login system for different user roles. and Also encryption and decryption 
-  upon saving the user data into database. adding extra layer of security into it
-● Members Area: Personalized area for members to view and manage their
-  information. and also change Their passwords
-● Role-Based Access Control: Different access levels for administrators and
-  members.
-● Additional Feature (Optional): A very friendly UI/UX, Assigning ID to users upon registration, 
-  Adding photos when posting new events, security, requires authentication for every activity making it very secure.
+# Club Management - CSEC
 
-The app is to big to be explaind by few words here, please take a tour yourself and see what it does, 
-IF you have any questions meet my at my telegram on @FAIR_HAVEN
+This is my entrance project for the club management site for the CSEC club. It is a club membership management dynamic web app developed by Fenan Yosef single-handedly.
 
-Dasvidaniya! (:
+## Technologies Used
+
+- Front-end: HTML, CSS, Bootstrap, JavaScript
+- Back-end: JavaScript, Node.js
+- Database: MySQL
+
+## Installation Instructions
+
+1. Download the project's zip file from the provided source.
+2. Create a new database in your local MySQL called "newnode".
+3. Navigate to the data directory and run the provided scripts to import the initial table structure to your local MySQL database.
+
+## Running the Application
+
+1. Open your terminal and navigate to the project directory.
+2. Start the back-end server by running the command `node login`.
+3. Open your browser and visit `localhost://3600` to access the login page.
+
+## Login Credentials
+
+- Admin:
+  - Username: Admin
+  - Password: 1234
+
+- User:
+  - Username: User
+  - Password: 1234
+
+## Features
+
+- Members Database: Provides functionalities to add, edit, remove, and list members.
+- Event Management: Tools to manage club events, including adding and deleting events on the admin web interface, and viewing events on the user interface.
+- Reporting Dashboard: Generates reports on membership statistics. Weekly statistics are included, which update on a weekly basis by recording activities.
+- User Authentication: Implements a secure login system for different user roles. User data is encrypted and decrypted for added security when stored in the database.
+- Members Area: Personalized area for members to view and manage their information. Users can also change their passwords.
+- Role-Based Access Control: Different access levels for administrators and members.
+- Additional Features (Optional): User-friendly UI/UX, unique user ID assignment upon registration, ability to add photos when posting new events, enhanced security with authentication required for every activity.
+
+Please explore the app to discover its full functionality and features. If you have any questions, feel free to reach out to me on Telegram at @FAIR_HAVEN.
+
+Spasibo!(Thank you!)

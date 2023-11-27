@@ -12,7 +12,7 @@ This is my entrance project for the club management site for the CSEC club. It i
 ## Installation Instructions
 
 1. Download the project's zip file from the provided source.
-2. Create a new database in your local MySQL called "newnode".
+2. Create a new database in your local MySQL called "newnode"., change the sql password in login.js
 3. Navigate to the data directory and run the provided scripts to import the initial table structure to your local MySQL database.
 
 ## Running the Application
